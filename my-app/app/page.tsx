@@ -1,66 +1,63 @@
 "use client"
 
-import React, { useState, useEffect, useMemo, Fragment } from "react";
-import {
-    Star, Clock, Users, ChefHat, BookOpen, MapPin, Calendar, X, Filter, Check, RefreshCw, MessageSquare, Bookmark, Share2, ArrowUp, ChevronUp, Link, Mail, Copy, Send, ChevronRight, Share // Added necessary icons
-} from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Star, Clock, Users, ChefHat, BookOpen, Calendar, X, Filter, Check, RefreshCw, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Playfair_Display, Nunito_Sans } from 'next/font/google';
-
+import { Playfair_Display, Nunito_Sans } from 'next/font/google'; // Changed to heritage-inspired fonts
+import Image from 'next/image';
 // --- Font Setup ---
 const playfair = Playfair_Display({
     subsets: ['latin'],
-    weight: ['400', '600', '700'],
+    weight: ['400', '600', '700'], // Load necessary weights
     variable: '--font-playfair',
-});
+  });
+  
 
 const nunitoSans = Nunito_Sans({
-    subsets: ['latin'],
-    weight: ['400', '600', '700'],
-    variable: '--font-nunito-sans',
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-nunito-sans',
 });
 
 // --- Interfaces ---
-interface Recipe { /* ... Interface definition ... */
-    id: string;
-    title: string;
-    description: string;
-    ingredients: string[];
-    instructions: string[];
-    prepTime: string;
-    cookTime: string;
-    totalTime: string;
-    servings: string;
-    difficulty: "Easy" | "Medium" | "Hard";
-    diet: string[];
-    image: string;
-    story: string;
-    culture: string;
-    author: { name: string; image: string; };
-    createdAt: string;
+interface Recipe {
+  id: string;
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTime: string;
+  cookTime: string;
+  totalTime: string;
+  servings: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  diet: string[];
+  image: string;
+  story: string;
+  culture: string;
+  author: { name: string; image: string; };
+  createdAt: string;
 }
 
-interface Review { /* ... Interface definition ... */
-    id: string;
-    recipeId: string;
-    rating: number;
-    comment: string;
-    author: { name: string; image: string; };
-    createdAt: string;
+interface Review { 
+  id: string; 
+  recipeId: string; 
+  rating: number; 
+  comment: string; 
+  author: { name: string; image: string; }; 
+  createdAt: string; 
 }
 
-interface Comment { /* ... Interface definition ... */
-    id: string;
-    recipeId: string;
-    text: string;
-    author: { name: string; image: string; };
-    createdAt: string;
-    replies: Comment[];
+interface Comment { 
+  id: string; 
+  recipeId: string; 
+  text: string; 
+  author: { name: string; image: string; }; 
+  createdAt: string; 
+  replies: Comment[]; 
 }
 
-
-// --- Mock Data ---
-// Assuming recipeData, reviewsData, commentsData are defined as in the first code block
+// --- Mock Data with Corrected Image URLs ---
 const recipeData: Recipe[] = [
     {
         id: "chana-masala",
@@ -97,10 +94,10 @@ const recipeData: Recipe[] = [
             "Stir in garam masala and dried fenugreek leaves.",
             "Garnish with fresh cilantro and serve hot with rice or Indian bread."
         ],
-        prepTime: "15 min (plus overnight soaking)",
-        cookTime: "45 min",
-        totalTime: "1 hour",
-        servings: "4-6",
+        prepTime: "15 min (plus overnight soaking)", 
+        cookTime: "45 min", 
+        totalTime: "1 hour", 
+        servings: "4-6", 
         difficulty: "Medium",
         diet: ["Vegetarian", "Gluten-Free"],
         image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=2071&auto=format&fit=crop",
@@ -132,13 +129,13 @@ const recipeData: Recipe[] = [
             "Gently remove and place on a cloth to cool slightly before serving or stacking.",
             "Repeat with remaining batter, adding a small amount of oil between each injera if needed."
         ],
-        prepTime: "15 min (plus 2-3 days fermentation)",
-        cookTime: "5 min per injera",
-        totalTime: "2-3 days",
-        servings: "8-10 injeras",
+        prepTime: "15 min (plus 2-3 days fermentation)", 
+        cookTime: "5 min per injera", 
+        totalTime: "2-3 days", 
+        servings: "8-10 injeras", 
         difficulty: "Medium",
         diet: ["Vegan", "Gluten-Free"],
-        image: "https://images.unsplash.com/photo-1535400255456-984233c0b584?q=80&w=2070&auto=format&fit=crop",
+        image: "https://media.cnn.com/api/v1/images/stellar/prod/190205150343-kitfo.jpg?q=w_2071,h_1380,x_0,y_0,c_fill",
         story: "Injera is the foundation of Ethiopian cuisine, serving not just as food but also as a utensil. This fermented flatbread has been a staple for centuries, with techniques passed down through generations. The unique sourdough fermentation process creates both the distinctive tangy flavor and the spongy texture with characteristic 'eyes' that perfectly absorb the rich sauces and stews of Ethiopian meals. In Ethiopian culture, sharing injera from a common plate symbolizes community and friendship.",
         culture: "Ethiopian",
         author: { name: "Alemitu Tesfaye", image: "https://randomuser.me/api/portraits/women/68.jpg" },
@@ -179,19 +176,21 @@ const recipeData: Recipe[] = [
             "Bake for 45-50 minutes until golden brown and crisp.",
             "Let cool for 10-15 minutes before serving to allow the filling to set."
         ],
-        prepTime: "45 min",
-        cookTime: "50 min",
-        totalTime: "1 hour 35 min",
-        servings: "8-10 pieces",
+        prepTime: "45 min", 
+        cookTime: "50 min", 
+        totalTime: "1 hour 35 min", 
+        servings: "8-10 pieces", 
         difficulty: "Hard",
         diet: ["Vegetarian"],
-        image: "https://images.unsplash.com/photo-1632459394522-1c63dba6abde?q=80&w=2069&auto=format&fit=crop",
+        image: "https://www.olivetomato.com/wp-content/uploads/2021/08/SAM_8242-1.jpeg?q=80&w=2071&auto=format&fit=crop",
         story: "Spanakopita has been a treasured part of Greek cuisine for generations. This savory pie appears in Greek literature dating back to antiquity and remains a staple in modern Greek households. Often prepared for special occasions and family gatherings, spanakopita showcases the Greek culinary philosophy of combining simple, fresh ingredients to create something extraordinary. The delicate layers of phyllo represent the artistry and patience central to traditional Greek cooking.",
         culture: "Greek",
         author: { name: "Maria Papadopoulos", image: "https://randomuser.me/api/portraits/women/55.jpg" },
         createdAt: "2024-09-14T09:15:00Z"
     }
 ];
+
+// --- Mock Data (Reviews & Comments) ---
 const reviewsData: { [key: string]: Review[] } = {
     "chana-masala": [
         { id: "review-1", recipeId: "chana-masala", rating: 4.5, comment: "Delicious and authentic! The spice blend is perfect and reminds me of my grandmother's cooking.", author: { name: "Ananya S.", image: "https://randomuser.me/api/portraits/women/32.jpg" }, createdAt: "2024-09-16T14:30:00Z" },
@@ -204,6 +203,7 @@ const reviewsData: { [key: string]: Review[] } = {
         { id: "review-4", recipeId: "spanakopita", rating: 4.6, comment: "Amazing! The phyllo was perfectly crispy and the filling had wonderful balance. Will definitely make again.", author: { name: "Elena P.", image: "https://randomuser.me/api/portraits/women/55.jpg" }, createdAt: "2024-09-14T11:20:00Z" }
     ]
 };
+
 const commentsData: { [key: string]: Comment[] } = {
     "chana-masala": [
         { id: "comment-1", recipeId: "chana-masala", text: "This looks amazing! Can't wait to try it for our family dinner.", author: { name: "Priya S.", image: "https://randomuser.me/api/portraits/women/78.jpg" }, createdAt: "2024-09-16T15:45:00Z", replies: [] },
@@ -218,13 +218,27 @@ const commentsData: { [key: string]: Comment[] } = {
 };
 
 
-// --- UI Styling Helpers ---
-const colors = { // Retained from original
-    primary: { light: 'amber-600', dark: 'amber-700', gradient: 'from-amber-600 to-amber-700' },
-    secondary: { light: 'teal-600', dark: 'teal-700', gradient: 'from-teal-600 to-teal-700' },
-    accent: { light: 'rose-500', dark: 'rose-600', gradient: 'from-rose-500 to-rose-600' },
-    neutral: { bg: '#fcf9f5', card: '#ffffff', light: '#f3f0ea', dark: '#2d2a26' },
-    text: { primary: '#362f2d', secondary: '#615954', light: '#8b8178' },
+// --- UI Styling Helpers (Enhanced Heritage-Inspired Palette) ---
+const colors = {
+    // Main palette inspired by heritage spices and earthenware
+    primary: { light: 'amber-600', dark: 'amber-700', gradient: 'from-amber-600 to-amber-700' },  // Warm amber/saffron
+    secondary: { light: 'teal-600', dark: 'teal-700', gradient: 'from-teal-600 to-teal-700' },    // Rich teal
+    accent: { light: 'rose-500', dark: 'rose-600', gradient: 'from-rose-500 to-rose-600' },       // Vibrant rose
+    
+    // Neutrals for background and text
+    neutral: { 
+        bg: '#fcf9f5',           // Warm off-white for background
+        card: '#ffffff',         // Pure white for cards
+        light: '#f3f0ea',        // Light beige for secondary backgrounds
+        dark: '#2d2a26'          // Deep charcoal for text
+    },
+    text: { 
+        primary: '#362f2d',      // Rich dark brown
+        secondary: '#615954',    // Medium warm gray
+        light: '#8b8178'         // Light warm gray
+    },
+    
+    // Badges by category
     badge: {
         punjabi: 'bg-red-100 text-red-800 border border-red-300',
         ethiopian: 'bg-orange-100 text-orange-800 border border-orange-300',
@@ -236,295 +250,275 @@ const colors = { // Retained from original
         medium: 'bg-amber-100 text-amber-800 border border-amber-300',
         hard: 'bg-rose-100 text-rose-800 border border-rose-300',
     },
-    difficulty: {
-        Easy: 'text-emerald-600', Medium: 'text-amber-600', Hard: 'text-rose-600',
-        easyBg: 'bg-emerald-600', mediumBg: 'bg-amber-600', hardBg: 'bg-rose-600', // For filter buttons
-    },
-     difficultyColors: { // For the animated badge component
-        Easy: 'bg-emerald-100 text-emerald-800',
-        Medium: 'bg-amber-100 text-amber-800',
-        Hard: 'bg-rose-100 text-rose-800'
+    
+    // Difficulty indicator colors
+    difficulty: { 
+        Easy: 'text-emerald-600', 
+        Medium: 'text-amber-600', 
+        Hard: 'text-rose-600' 
     }
 };
 
-// --- Helper Functions ---
-const getBadgeClass = (type: string, category: 'culture' | 'diet' | 'difficulty'): string => { /* ... as before ... */
-    const key = type.toLowerCase().replace(/[\s-]/g, '');
-    const categoryBadges = colors.badge as any;
+// Function to get badge class (with fallback)
+const getBadgeClass = (type: string): string => {
+    const key = type.toLowerCase().replace(/[\s-]/g, ''); // Normalize key, remove spaces and hyphens
+    const categoryBadges = colors.badge as Record<string, string>; // Type-safe alternative to any
     return categoryBadges[key] || 'bg-gray-100 text-gray-800 border border-gray-300';
 };
-const getDifficultyBgClass = (difficulty: "Easy" | "Medium" | "Hard"): string => { /* ... as before ... */
-    const key = difficulty.toLowerCase() + 'Bg';
-    return (colors.difficulty as any)[key] || 'bg-gray-600';
+
+// Animation variants for micro-interactions
+const animations = {
+    fadeIn: {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.3 }
+    },
+    slideUp: {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -20 },
+        transition: { duration: 0.3, ease: "easeOut" }
+    },
+    popIn: {
+        initial: { scale: 0.95, opacity: 0 },
+        animate: { scale: 1, opacity: 1 },
+        exit: { scale: 0.95, opacity: 0 },
+        transition: { type: "spring", stiffness: 300, damping: 25 }
+    },
+    stagger: {
+        container: {
+            animate: { transition: { staggerChildren: 0.07 } }
+        },
+        item: {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            exit: { opacity: 0, y: -20 },
+            transition: { duration: 0.3 }
+        }
+    }
 };
-const calculateAverageRating = (reviews: Review[]): number => { // Simplified for RecipeCard
-    if (!reviews || reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return sum / reviews.length;
-};
-const calculateAverageRatingGlobal = (recipeId: string, reviews: { [key: string]: Review[] }): { avg: number | string, count: number } => { // Renamed for global use
+
+// --- Calculation Helper ---
+const calculateAverageRating = (recipeId: string, reviews: { [key: string]: Review[] }): { avg: number | string, count: number } => {
     const relevantReviews = reviews[recipeId] || [];
     const count = relevantReviews.length;
     if (count === 0) return { avg: "N/A", count: 0 };
     const sum = relevantReviews.reduce((acc, review) => acc + review.rating, 0);
     return { avg: (sum / count).toFixed(1), count };
 };
-const formatDate = (dateString: string): string => { /* ... as before ... */
+
+const formatDate = (dateString: string): string => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 };
-const getDifficultyColorClass = (difficulty: "Easy" | "Medium" | "Hard"): string => {
-    return (colors.difficultyColors as any)[difficulty] || 'bg-gray-100 text-gray-800';
-};
 
+// --- Badge Component ---
+interface BadgeProps {
+    label: string;
+    category: 'culture' | 'diet' | 'difficulty';
+    size?: 'sm' | 'md';
+}
 
-// --- Filter Types ---
-interface FilterOptions { difficulties: string[]; diets: string[]; cultures: string[]; }
-interface ActiveFilters { difficulty: string[]; diet: string[]; culture: string[]; }
-
-// --- Consolidated Animations Object ---
-const animations = {
-    fadeIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.3 } },
-    fadeInUp: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 }, transition: { duration: 0.3 } },
-    popIn: { initial: { scale: 0.95, opacity: 0 }, animate: { scale: 1, opacity: 1 }, exit: { scale: 0.95, opacity: 0 }, transition: { type: "spring", stiffness: 400, damping: 30 } },
-    stagger: {
-        container: { initial: {}, animate: { transition: { staggerChildren: 0.07 } } }, // Adjusted stagger time
-        item: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 }, transition: { duration: 0.3 } }
-    }
-};
-
-
-// --- Badge Component with Animation ---
-interface BadgeProps { label: string; category: 'difficulty' | 'diet' | 'culture'; size?: 'sm' | 'md'; }
-const Badge: React.FC<BadgeProps> = ({ label, category, size = 'sm' }) => {
-    const sizeClasses = size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-3 py-1';
-
-    let colorClasses = '';
-    if (category === 'difficulty') {
-        colorClasses = getDifficultyColorClass(label as "Easy" | "Medium" | "Hard");
-    } else if (category === 'diet') {
-        // Use the original getBadgeClass for diet/culture for consistency with filter colors
-        colorClasses = getBadgeClass(label, category).split(' ').filter(c => c.startsWith('bg-') || c.startsWith('text-')).join(' ');
-    } else if (category === 'culture') {
-        colorClasses = getBadgeClass(label, category).split(' ').filter(c => c.startsWith('bg-') || c.startsWith('text-')).join(' ');
-    } else {
-         colorClasses = 'bg-gray-100 text-gray-800';
-    }
-
-
+const Badge: React.FC<BadgeProps> = ({ label, size = 'sm' }) => {
+    const baseClasses = "inline-flex items-center rounded-full font-medium";
+    const sizeClasses = size === 'sm' ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm";
+    
     return (
-        <motion.span
-            className={`inline-block rounded-full font-medium ${sizeClasses} ${colorClasses} border border-black/10`} // Added subtle border
-            whileHover={{ scale: 1.08, y: -1 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        >
+        <span className={`${baseClasses} ${sizeClasses} ${getBadgeClass(label)}`}>
             {label}
-        </motion.span>
+        </span>
     );
 };
 
+// --- Filter Component ---
+interface FilterOptions {
+    difficulties: string[];
+    diets: string[];
+    cultures: string[];
+}
 
-// --- Featured Recipe Component ---
-interface FeaturedRecipeProps { recipe: Recipe; onSelect: (recipe: Recipe) => void; }
-const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({ recipe, onSelect }) => {
+interface ActiveFilters {
+    difficulty: string[];
+    diet: string[];
+    culture: string[];
+}
+
+interface FilterButtonsProps {
+    options: FilterOptions;
+    activeFilters: ActiveFilters;
+    onFilterChange: (category: keyof ActiveFilters, value: string) => void;
+    onResetFilters: () => void;
+}
+
+const FilterButtons: React.FC<FilterButtonsProps> = ({ options, activeFilters, onFilterChange, onResetFilters }) => {
+    // Count active filters
+    const activeFilterCount = Object.values(activeFilters).reduce(
+        (count, filterArray) => count + filterArray.length, 0
+    );
+    
+    const renderButton = (category: keyof ActiveFilters, value: string) => {
+        const isActive = activeFilters[category].includes(value);
+        return (
+            <motion.button
+                key={value}
+                onClick={() => onFilterChange(category, value)}
+                className={`flex items-center px-3 py-1.5 rounded-full border text-sm transition-all duration-200 shadow-sm ${
+                    isActive
+                        ? `bg-amber-600 text-white border-amber-600 scale-105`
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:text-amber-700'
+                }`}
+                whileTap={{ scale: 0.97 }}
+                initial={false}
+            >
+                {isActive && <Check className="w-3 h-3 mr-1.5 stroke-2" />}
+                {value}
+            </motion.button>
+        );
+    };
+
     return (
-        <motion.div
-            className="bg-white rounded-xl overflow-hidden shadow-lg mb-12 border border-slate-200 hover:shadow-xl transition-shadow duration-300" // Enhanced shadow
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }} // Trigger sooner
-            transition={{ duration: 0.6, ease: "easeOut" }}
+        <motion.div 
+            className="mb-8 bg-white p-5 rounded-lg shadow-sm border border-slate-100 relative z-10"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
         >
-            <div className="md:flex">
-                <div className="md:w-1/2 relative overflow-hidden h-64 md:h-auto">
-                    <motion.img
-                        src={recipe.image}
-                        alt={recipe.title}
-                        className="w-full h-full object-cover"
-                         whileHover={{ scale: 1.05 }}
-                         transition={{ duration: 0.5 }}
-                    />
-                    <div className="absolute top-4 left-4">
-                         <motion.span
-                            className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 }}
-                         >
-                            Featured Recipe
-                        </motion.span>
-                    </div>
+            <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                        <Filter className="w-4 h-4" /> 
+                        Filter Recipes
+                    </span>
+                    
+                    {activeFilterCount > 0 && (
+                        <motion.button
+                            onClick={onResetFilters}
+                            className="flex items-center text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <RefreshCw className="w-3 h-3 mr-1" />
+                            Reset ({activeFilterCount})
+                        </motion.button>
+                    )}
                 </div>
-                <div className="md:w-1/2 p-6 md:p-8 flex flex-col">
-                     <motion.div
-                        className="flex items-center gap-2 mb-3"
-                        variants={animations.stagger.container} initial="initial" animate="animate"
-                     >
-                         <motion.div variants={animations.stagger.item}><Badge label={recipe.culture} category="culture" size="md" /></motion.div>
-                         <motion.div variants={animations.stagger.item}><Badge label={recipe.difficulty} category="difficulty" size="md" /></motion.div>
-                     </motion.div>
-
-                    <motion.h2
-                        className={`text-2xl md:text-3xl font-bold text-slate-800 mb-3 ${playfair.className}`}
-                         initial={{ opacity: 0, x: -10 }}
-                         animate={{ opacity: 1, x: 0 }}
-                         transition={{ delay: 0.1 }}
-                    >
-                        {recipe.title}
-                    </motion.h2>
-
-                     <motion.p
-                        className="text-slate-600 mb-6 flex-grow line-clamp-4"
-                         initial={{ opacity: 0 }}
-                         animate={{ opacity: 1 }}
-                         transition={{ delay: 0.2 }}
-                     >
-                        {recipe.description}
-                    </motion.p>
-
-                    <motion.div
-                        className="flex flex-wrap gap-2 mb-6"
-                        variants={animations.stagger.container} initial="initial" animate="animate"
-                    >
-                        {recipe.diet.map(diet => (
-                           <motion.div key={diet} variants={animations.stagger.item}> <Badge label={diet} category="diet" /></motion.div>
-                        ))}
-                    </motion.div>
-
-                    <motion.div
-                         className="flex items-center justify-between mb-6 text-sm text-slate-600"
-                         initial={{ opacity: 0 }}
-                         animate={{ opacity: 1 }}
-                         transition={{ delay: 0.3 }}
-                    >
-                        <div className="flex items-center gap-1.5"> <Clock className="w-4 h-4" /> <span>{recipe.totalTime}</span> </div>
-                        <div className="flex items-center gap-1.5"> <Users className="w-4 h-4" /> <span>Serves {recipe.servings}</span> </div>
-                    </motion.div>
-
-                    <motion.button
-                        onClick={() => onSelect(recipe)}
-                        className="mt-auto bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 shadow hover:shadow-md"
-                        whileHover={{ scale: 1.03, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                         initial={{ opacity: 0, y: 10 }}
-                         animate={{ opacity: 1, y: 0 }}
-                         transition={{ delay: 0.4 }}
-                    >
-                        <BookOpen className="w-5 h-5" />
-                        View Recipe
-                    </motion.button>
+                
+                <div className="flex flex-wrap gap-y-3 gap-x-4 w-full sm:w-auto">
+                    <div className="flex flex-wrap gap-2 items-center border-l pl-4">
+                        <span className="text-sm font-medium text-slate-500 self-center mr-1">Cuisine:</span>
+                        <div className="flex flex-wrap gap-2">
+                            {options.cultures.map(c => renderButton('culture', c))}
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 items-center border-l pl-4">
+                        <span className="text-sm font-medium text-slate-500 self-center mr-1">Difficulty:</span>
+                        <div className="flex flex-wrap gap-2">
+                            {options.difficulties.map(d => renderButton('difficulty', d))}
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 items-center border-l pl-4">
+                        <span className="text-sm font-medium text-slate-500 self-center mr-1">Diet:</span>
+                        <div className="flex flex-wrap gap-2">
+                            {options.diets.map(d => renderButton('diet', d))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </motion.div>
     );
 };
 
-
-// --- Recipe Card Component (Enhanced with Microanimations) ---
+// --- Recipe Card Component (Enhanced UI) ---
 interface RecipeCardProps {
     recipe: Recipe;
     reviews: { [key: string]: Review[] };
     comments: { [key: string]: Comment[] };
     onSelect: (recipe: Recipe) => void;
-    savedRecipes: string[];
-    onToggleSave: (recipeId: string) => void;
-    onShareRecipe: (recipe: Recipe) => void;
 }
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, reviews, comments, onSelect, savedRecipes, onToggleSave, onShareRecipe }) => {
-    const reviewsForRecipe = reviews[recipe.id] || [];
-    const commentsForRecipe = comments[recipe.id] || [];
-    const avgRating = calculateAverageRating(reviewsForRecipe); // Use the simplified helper
-    const isSaved = savedRecipes?.includes(recipe.id) || false;
+
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, reviews, comments, onSelect }) => {
+    const { avg: avgRating, count: reviewCount } = calculateAverageRating(recipe.id, reviews);
+    const commentCount = (comments[recipe.id] || []).length;
 
     return (
         <motion.div
-            className="bg-white rounded-xl overflow-hidden shadow-md border border-slate-100 flex flex-col h-full cursor-pointer group" // Lighter border, added group
-            layout // Enable layout animation
-            variants={animations.stagger.item} // Use stagger item variant
-            whileHover={{ y: -5, boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05)" }} // Subtle hover shadow
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            layout
+            variants={animations.slideUp}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 flex flex-col group"
             onClick={() => onSelect(recipe)}
+            style={{ fontFamily: nunitoSans.style.fontFamily }}
         >
-            <div className="relative overflow-hidden"> {/* Added overflow hidden here */}
-                <motion.img
-                    src={recipe.image} alt={recipe.title} className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" // Group hover scale
-                 />
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/5 via-transparent to-black/40"></div>
-                <div className="absolute top-3 left-3 flex gap-2">
-                     <Badge label={recipe.culture} category="culture" />
-                     <Badge label={recipe.difficulty} category="difficulty" />
-                </div>
-                <div className="absolute top-3 right-3 flex gap-2">
-                    <motion.button
-                        onClick={(e) => { e.stopPropagation(); onToggleSave?.(recipe.id); }}
-                        className={`p-2 rounded-full ${isSaved ? 'bg-amber-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'} shadow-md backdrop-blur-sm transition-colors duration-200`}
-                        whileHover={{ scale: 1.15, rotate: isSaved ? 0 : 5 }} // Slightly more hover scale and rotate
-                        whileTap={{ scale: 0.9 }}
-                        aria-label={isSaved ? "Unsave recipe" : "Save recipe"}
-                        key={isSaved ? "saved" : "unsaved"} // Key change for animation
-                        initial={{ scale: 0.8, opacity: 0.7 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0.7 }}
+            <div className="w-full h-56 overflow-hidden relative"> 
+                <Image 
+                    src={recipe.image} 
+                    alt={recipe.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    width={400}
+                    height={300}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute bottom-0 left-0 p-3 w-full">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }} 
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
                     >
-                        <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
-                    </motion.button>
-                    <motion.button
-                        onClick={(e) => { e.stopPropagation(); onShareRecipe?.(recipe); }}
-                        className="p-2 rounded-full bg-white/80 text-slate-700 hover:bg-white shadow-md backdrop-blur-sm transition-colors duration-200"
-                        whileHover={{ scale: 1.15, rotate: -5 }}
-                        whileTap={{ scale: 0.9 }}
-                        aria-label="Share recipe"
-                    >
-                        <Share2 className="w-4 h-4" />
-                    </motion.button>
+                        <Badge label={recipe.culture} category="culture" size="md" />
+                    </motion.div>
                 </div>
             </div>
-
-            <div className="p-4 md:p-5 flex-grow flex flex-col"> {/* Adjusted padding */}
-                 <h3 className={`text-lg md:text-xl font-semibold mb-2 text-slate-800 group-hover:text-amber-700 transition-colors duration-200 ${playfair.className}`}>{recipe.title}</h3>
-                 <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-grow">{recipe.description}</p> {/* Use flex-grow here */}
-
-                 <div className="flex flex-wrap gap-1.5 mb-4"> {/* Smaller gap */}
-                    {recipe.diet.slice(0, 2).map(diet => ( // Show fewer initially
-                        <span key={diet} className="px-2 py-0.5 bg-green-50 border border-green-200 text-green-700 rounded-full text-xs font-medium">
-                            {diet}
-                        </span>
+            
+            <div className="p-5 flex flex-col flex-grow">
+                <h3 className={`text-xl font-semibold text-slate-800 mb-2 ${playfair.className}`}>
+                    {recipe.title}
+                </h3>
+                
+                <p className="text-sm text-slate-600 line-clamp-3 mb-4 flex-grow">
+                    {recipe.description}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                    {recipe.diet.map(diet => (
+                        <Badge key={diet} label={diet} category="diet" />
                     ))}
-                    {recipe.diet.length > 2 && (
-                        <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-full text-xs font-medium">
-                            +{recipe.diet.length - 2} more
-                        </span>
-                    )}
                 </div>
-
-                 <div className="flex items-center text-sm text-slate-500 mb-4 mt-auto pt-3 border-t border-slate-100"> {/* Moved time/servings here */}
-                    <div className="flex items-center mr-3"> <Clock className="w-4 h-4 mr-1 text-slate-400" /> {recipe.totalTime} </div>
-                    <div className="flex items-center"> <Users className="w-4 h-4 mr-1 text-slate-400" /> {recipe.servings} servings</div>
-                     <div className="ml-auto flex items-center" title={`Rating: ${avgRating > 0 ? avgRating.toFixed(1) : 'N/A'}`}>
-                        <Star className={`w-4 h-4 ${avgRating > 0 ? 'text-amber-400 fill-current' : 'text-slate-300'} mr-1`} />
-                        <span className="font-medium text-slate-600">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</span>
+                
+                <div className="flex justify-between items-center text-sm border-t border-slate-200 pt-4 mt-auto">
+                    <div className="flex items-center gap-1.5 mr-4">
+                        <ChefHat className={`w-4 h-4 ${colors.difficulty[recipe.difficulty]}`} />
+                        <span className={`font-medium ${colors.difficulty[recipe.difficulty]}`}>
+                            {recipe.difficulty}
+                        </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <span className="font-semibold text-slate-700">{avgRating}</span>
+                            <span className="text-xs text-slate-400">({reviewCount})</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors">
+                            <MessageSquare className="w-4 h-4" />
+                            <span className="text-xs">{commentCount}</span>
+                        </div>
                     </div>
                 </div>
-
-
-                <motion.button
-                    onClick={() => onSelect(recipe)} // Let parent div handle click if preferred
-                    className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-1 group" // Added group for arrow animation
-                     whileHover={{ scale: 1.03 }} // Subtle hover scale
-                     whileTap={{ scale: 0.98 }}
-                >
-                    View Recipe
-                    <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </motion.button>
             </div>
         </motion.div>
     );
 };
 
-
-// --- Recipe Detail Modal Component ---
-// (Keep the previously combined version - no major animation changes requested here)
+// --- Recipe Detail Modal Component (Enhanced UI) ---
 interface RecipeDetailModalProps {
     recipe: Recipe;
     initialReviews: Review[];
@@ -533,80 +527,96 @@ interface RecipeDetailModalProps {
     onReviewSubmit: (newReview: Review) => void;
     onCommentSubmit: (newComment: Comment) => void;
 }
-const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({ recipe, initialReviews, initialComments, onClose, onReviewSubmit, onCommentSubmit }) => {
+
+const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({ 
+    recipe, 
+    initialReviews, 
+    initialComments, 
+    onClose, 
+    onReviewSubmit,
+    onCommentSubmit
+}) => {
     const [userRating, setUserRating] = useState<number>(0);
     const [userReview, setUserReview] = useState<string>("");
     const [userComment, setUserComment] = useState<string>("");
-    const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false); // Separate submitting states
-    const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(
+false);
     const [activeTab, setActiveTab] = useState<'story' | 'ingredients' | 'instructions' | 'reviews'>('story');
     const [reviews, setReviews] = useState<Review[]>(initialReviews || []);
     const [comments, setComments] = useState<Comment[]>(initialComments || []);
-
-    const { avg: avgRating, count: reviewCount } = useMemo(() => calculateAverageRatingGlobal(recipe.id, { [recipe.id]: reviews }), [recipe.id, reviews]); // Recalculate based on local state
-
-    useEffect(() => {
-        setReviews(initialReviews || []);
-        setComments(initialComments || []);
-    }, [initialReviews, initialComments]);
-
-
+    
+    const { avg: avgRating, count: reviewCount } = calculateAverageRating(recipe.id, reviewsData);
+    
     const handleReviewSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (userRating === 0 || userReview.trim() === "") return;
-        setIsSubmittingReview(true);
+        
+        setIsSubmitting(true);
+        
         setTimeout(() => {
-            const newReview: Review = { id: `review-${Date.now()}`, recipeId: recipe.id, rating: userRating, comment: userReview, author: { name: "Guest User", image: "https://randomuser.me/api/portraits/lego/1.jpg" }, createdAt: new Date().toISOString() };
-            onReviewSubmit(newReview); // Inform parent
-            setReviews(prev => [newReview, ...prev]); // Optimistic UI update
+            const newReview: Review = {
+                id: `review-${Date.now()}`,
+                recipeId: recipe.id,
+                rating: userRating,
+                comment: userReview,
+                author: { name: "Guest User", image: "https://randomuser.me/api/portraits/lego/1.jpg" },
+                createdAt: new Date().toISOString()
+            };
+            
+            setReviews(prev => [newReview, ...prev]);
+            onReviewSubmit(newReview);
             setUserRating(0);
             setUserReview("");
-            setIsSubmittingReview(false);
+            setIsSubmitting(false);
         }, 500);
     };
-
+    
     const handleCommentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (userComment.trim() === "") return;
-        setIsSubmittingComment(true);
+        
+        setIsSubmitting(true);
+        
         setTimeout(() => {
-            const newComment: Comment = { id: `comment-${Date.now()}`, recipeId: recipe.id, text: userComment, author: { name: "Guest User", image: "https://randomuser.me/api/portraits/lego/1.jpg" }, createdAt: new Date().toISOString(), replies: [] };
-            onCommentSubmit(newComment); // Inform parent
-            setComments(prev => [newComment, ...prev]); // Optimistic UI update
+            const newComment: Comment = {
+                id: `comment-${Date.now()}`,
+                recipeId: recipe.id,
+                text: userComment,
+                author: { name: "Guest User", image: "https://randomuser.me/api/portraits/lego/1.jpg" },
+                createdAt: new Date().toISOString(),
+                replies: []
+            };
+            
+            setComments(prev => [newComment, ...prev]);
+            onCommentSubmit(newComment);
             setUserComment("");
-            setIsSubmittingComment(false);
+            setIsSubmitting(false);
         }, 500);
     };
-
-    // Star rating component (slightly enhanced)
-    const renderStarRating = (rating: number, interactive = false, size = 5) => {
-        const starSizeClass = `w-${size} h-${size}`;
+    
+    // Render star rating component
+    const renderStarRating = (rating: number, interactive = false) => {
         return (
-            <div className="flex items-center space-x-0.5"> {/* Added space */}
+            <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
-                    <motion.button
+                    <span
                         key={star}
-                        type="button"
                         onClick={interactive ? () => setUserRating(star) : undefined}
-                        disabled={!interactive}
-                        className={`${interactive ? 'cursor-pointer' : ''} ${star <= (interactive ? userRating : rating) ? 'text-amber-500' : 'text-gray-300 hover:text-gray-400'}`}
-                        aria-label={`Rate ${star} out of 5 stars`}
-                        whileHover={interactive ? { scale: 1.2, y: -1 } : {}}
-                        whileTap={interactive ? { scale: 0.9 } : {}}
-                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className={`${
+                            interactive ? 'cursor-pointer transition-all duration-200' : ''
+                        } ${star <= (interactive ? userRating : rating) ? 'text-amber-500' : 'text-gray-300'}`}
                     >
-                        <Star className={`${starSizeClass} ${star <= (interactive ? userRating : rating) ? 'fill-current' : ''}`} />
-                    </motion.button>
+                        <Star className={`w-5 h-5 ${star <= (interactive ? userRating : rating) ? 'fill-amber-500' : ''}`} />
+                    </span>
                 ))}
             </div>
         );
     };
-
-    // Render the modal structure (mostly unchanged, focus was on other components)
+    
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center overflow-hidden p-4" onClick={onClose}>
-             <motion.div
-                className="relative bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl flex flex-col" // Added flex flex-col
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center overflow-hidden" onClick={onClose}>
+            <motion.div 
+                className="relative bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl mx-4"
                 onClick={(e) => e.stopPropagation()}
                 variants={animations.popIn}
                 initial="initial"
@@ -614,220 +624,389 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({ recipe, initialRe
                 exit="exit"
                 style={{ fontFamily: nunitoSans.style.fontFamily }}
             >
-                 {/* Close Button */}
-                 <button
-                    className="absolute top-4 right-4 z-20 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
-                    onClick={onClose} aria-label="Close modal"
+                {/* Close Button */}
+                <button 
+                    className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all duration-200"
+                    onClick={onClose}
                 >
                     <X className="w-5 h-5 text-gray-700" />
                 </button>
-
-                {/* Hero Image */}
-                 <div className="relative h-64 md:h-80 w-full overflow-hidden flex-shrink-0"> {/* Added flex-shrink-0 */}
-                    <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover" />
+                
+                {/* Hero Image with Gradient Overlay */}
+                <div className="relative h-80 w-full overflow-hidden">
+    <Image 
+        src={recipe.image} 
+        alt={recipe.title} 
+        className="w-full h-full object-cover"
+        width={1200}
+        height={600}
+        priority
+    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 p-6 w-full z-10">
+                    
+                    {/* Title Overlay */}
+                    <div className="absolute bottom-0 left-0 p-6 w-full">
                         <div className="flex items-center gap-2 mb-2">
                             <Badge label={recipe.culture} category="culture" size="md" />
-                            <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm flex items-center gap-1.5 shadow">
-                                <Clock className="w-3.5 h-3.5" /> {recipe.totalTime}
+                            <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5" />
+                                {recipe.totalTime}
                             </span>
                         </div>
+                        
                         <h1 className={`text-3xl md:text-4xl font-bold text-white mb-2 ${playfair.className}`}>
                             {recipe.title}
                         </h1>
-                         <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-white/90">
+                        
+                        <div className="flex items-center flex-wrap gap-4">
                             <div className="flex items-center gap-2">
-                                {renderStarRating(Number(avgRating), false, 4)}
-                                <span>{avgRating} ({reviewCount} reviews)</span>
+                                {renderStarRating(Number(avgRating))}
+                                <span className="text-white">{avgRating} ({reviewCount} reviews)</span>
                             </div>
-                            <div className="flex items-center gap-1.5"> <ChefHat className="w-4 h-4" /> <span>{recipe.difficulty}</span> </div>
-                            <div className="flex items-center gap-1.5"> <Users className="w-4 h-4" /> <span>Serves {recipe.servings}</span> </div>
+                            
+                            <div className="flex items-center gap-1.5 text-white">
+                                <ChefHat className="w-4 h-4" />
+                                <span>{recipe.difficulty}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1.5 text-white">
+                                <Users className="w-4 h-4" />
+                                <span>Serves {recipe.servings}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                 {/* Content Area */}
-                 <div className="flex flex-col md:flex-row flex-grow overflow-hidden"> {/* Added flex-grow and overflow-hidden */}
-                     {/* Main Content */}
-                     <div className="flex-grow p-6 md:p-8 overflow-y-auto"> {/* Allow main content to scroll */}
-                         {/* Tab Navigation */}
-                         <div className="flex border-b border-gray-200 mb-6 sticky top-0 bg-white z-10 -mt-6 pt-4 -mx-6 px-6 md:-mt-8 md:pt-6 md:-mx-8 md:px-8 pb-1"> {/* Added pb-1 */}
+                
+                {/* Content */}
+                <div className="p-6 flex flex-col md:flex-row gap-8">
+                    {/* Main Content */}
+                    <div className="flex-grow">
+                        {/* Tab Navigation */}
+                        <div className="flex border-b border-gray-200 mb-6">
                             {(['story', 'ingredients', 'instructions', 'reviews'] as const).map((tab) => (
                                 <button
                                     key={tab}
-                                    className={`relative px-4 py-3 font-semibold capitalize transition-colors outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-t-md
-                                        ${activeTab === tab ? 'text-amber-700' : 'text-gray-500 hover:text-amber-600'}`}
+                                    className={`px-4 py-3 font-medium capitalize transition-colors
+                                        ${activeTab === tab 
+                                            ? 'text-amber-700 border-b-2 border-amber-600' 
+                                            : 'text-gray-500 hover:text-amber-600'}`}
                                     onClick={() => setActiveTab(tab)}
                                 >
                                     {tab === 'story' ? 'About' : tab}
-                                    {tab === 'reviews' && reviews.length > 0 && (<span className="ml-1.5 text-xs font-medium bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full align-middle">{reviews.length}</span>)}
-                                     {/* Animated underline */}
-                                     {activeTab === tab && (
-                                        <motion.div
-                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600"
-                                            layoutId="underline" // layoutId enables animation between tabs
-                                            transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                                        />
+                                    {tab === 'reviews' && reviews.length > 0 && (
+                                        <span className="ml-1 text-sm text-gray-400">({reviews.length})</span>
                                     )}
                                 </button>
                             ))}
                         </div>
-
-                         {/* Tab Content */}
-                         <div className="pb-4">
-                            <AnimatePresence mode="wait">
+                        
+                        {/* Tab Content */}
+                        <div className="pb-4">
+                            {/* Story Tab */}
+                            {activeTab === 'story' && (
                                 <motion.div
-                                    key={activeTab}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.2 }}
+                                    key="story"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
                                 >
-                                     {/* Story Tab */}
-                                     {activeTab === 'story' && (
-                                        <div>
-                                            <p className="text-gray-700 leading-relaxed mb-6">{recipe.description}</p>
-                                            <h3 className={`text-lg font-semibold text-slate-800 mb-3 ${playfair.className}`}>The Story Behind the Dish</h3>
-                                            <p className="text-gray-700 leading-relaxed whitespace-pre-line mb-8">{recipe.story}</p>
-                                            <div className="flex items-center bg-slate-50 p-4 rounded-lg border border-slate-200">
-                                                <img src={recipe.author.image} alt={recipe.author.name} className="w-12 h-12 rounded-full object-cover mr-4 shadow" />
-                                                <div>
-                                                    <p className="font-semibold text-gray-800">{recipe.author.name}</p>
-                                                    <p className="text-sm text-gray-500 flex items-center gap-1"> <Calendar className="w-3.5 h-3.5" /> Shared on: {formatDate(recipe.createdAt)} </p>
+                                    <div className="mb-6">
+                                        <p className="text-gray-700 leading-relaxed mb-4">{recipe.description}</p>
+                                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">{recipe.story}</p>
+                                    </div>
+                                    
+                                    <div className="mt-8">
+                                        <div className="flex items-center mb-4">
+                                            <Image
+                                                src={recipe.author.image} 
+                                                alt={recipe.author.name}
+                                                className="w-10 h-10 rounded-full object-cover mr-3" 
+                                                width={40}
+                                                height={40}
+                                            />
+                                            <div>
+                                                <p className="font-medium text-gray-800">{recipe.author.name}</p>
+                                                <p className="text-sm text-gray-500">
+                                                    <Calendar className="w-3.5 h-3.5 inline mr-1" />
+                                                    {formatDate(recipe.createdAt)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>         
+                                </motion.div>
+                            )}
+                            
+                            {/* Ingredients Tab */}
+                            {activeTab === 'ingredients' && (
+                                <motion.div
+                                    key="ingredients"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <ul className="space-y-2">
+                                        {recipe.ingredients.map((ingredient, index) => (
+                                            <motion.li 
+                                                key={index}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className="flex items-start border-b border-gray-100 pb-2"
+                                            >
+                                                <span className="bg-amber-100 text-amber-800 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
+                                                    {index + 1}
+                                                </span>
+                                                <span className="text-gray-700">{ingredient}</span>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
+                                </motion.div>
+                            )}
+                            
+                            {/* Instructions Tab */}
+                            {activeTab === 'instructions' && (
+                                <motion.div
+                                    key="instructions"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <ol className="space-y-6">
+                                        {recipe.instructions.map((instruction, index) => (
+                                            <motion.li 
+                                                key={index}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                                className="flex"
+                                            >
+                                                <div className="bg-amber-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium mr-4 mt-0.5 shrink-0">
+                                                    {index + 1}
+                                                </div>
+                                                <p className="text-gray-700 leading-relaxed">{instruction}</p>
+                                            </motion.li>
+                                        ))}
+                                    </ol>
+                                </motion.div>
+                            )}
+                            
+                            {/* Reviews Tab */}
+                            {activeTab === 'reviews' && (
+                                <motion.div
+                                    key="reviews"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {/* Write a Review */}
+                                    <div className="mb-8 p-5 bg-slate-50 rounded-lg border border-slate-200">
+                                        <h3 className={`text-lg font-semibold text-slate-800 mb-4 ${playfair.className}`}>
+                                            Write a Review
+                                        </h3>
+                                        
+                                        <form onSubmit={handleReviewSubmit}>
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Your Rating
+                                                </label>
+                                                <div className="flex items-center">
+                                                    {renderStarRating(0, true)}
+                                                    {userRating > 0 && (
+                                                        <span className="ml-2 text-sm text-amber-600 font-medium">
+                                                            {userRating}/5
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-
-                                    {/* Ingredients Tab */}
-                                    {activeTab === 'ingredients' && (
-                                        <ul className="space-y-3">
-                                            {recipe.ingredients.map((ingredient, index) => (
-                                                <motion.li
-                                                    key={index} className="flex items-start border-b border-gray-100 pb-3"
-                                                    initial={{ opacity: 0, x: -10 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                >
-                                                    <span className="bg-amber-100 text-amber-800 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5 flex-shrink-0 shadow-sm"> {index + 1} </span>
-                                                    <span className="text-gray-700">{ingredient}</span>
-                                                </motion.li>
-                                            ))}
-                                        </ul>
-                                    )}
-
-                                    {/* Instructions Tab */}
-                                    {activeTab === 'instructions' && (
-                                        <ol className="space-y-6">
-                                            {recipe.instructions.map((instruction, index) => (
-                                                <motion.li
-                                                    key={index} className="flex"
-                                                     initial={{ opacity: 0, y: 15 }}
-                                                     animate={{ opacity: 1, y: 0 }}
-                                                     transition={{ delay: index * 0.08 }}
-                                                >
-                                                    <div className="bg-amber-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-semibold mr-4 mt-0.5 shrink-0 shadow"> {index + 1} </div>
-                                                    <p className="text-gray-700 leading-relaxed">{instruction}</p>
-                                                </motion.li>
-                                            ))}
-                                        </ol>
-                                    )}
-
-                                     {/* Reviews Tab */}
-                                     {activeTab === 'reviews' && (
-                                        <div>
-                                            <div className="mb-8 p-5 bg-slate-50 rounded-lg border border-slate-200">
-                                                <h3 className={`text-lg font-semibold text-slate-800 mb-4 ${playfair.className}`}>Share Your Experience</h3>
-                                                <form onSubmit={handleReviewSubmit}>
-                                                    <div className="mb-4">
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating *</label>
-                                                        <div className="flex items-center gap-2">
-                                                            {renderStarRating(0, true)}
-                                                            {userRating > 0 && (<span className="text-sm text-amber-600 font-medium">{userRating}/5</span>)}
+                                            
+                                            <div className="mb-4">
+                                                <label htmlFor="review" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Your Review
+                                                </label>
+                                                <textarea
+                                                    id="review"
+                                                    rows={4}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                                    placeholder="Share your experience with this recipe..."
+                                                    value={userReview}
+                                                    onChange={(e) => setUserReview(e.target.value)}
+                                                    required
+                                                ></textarea>
+                                            </div>
+                                            
+                                            <button
+                                                type="submit"
+                                                disabled={isSubmitting || userRating === 0 || userReview.trim() === ""}
+                                                className={`px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors
+                                                    ${(isSubmitting || userRating === 0 || userReview.trim() === "") ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    {/* Reviews List */}
+                                    <div>
+                                        <h3 className={`text-lg font-semibold text-slate-800 mb-5 flex items-center gap-2 ${playfair.className}`}>
+                                            <BookOpen className="w-5 h-5" />
+                                            All Reviews ({reviews.length})
+                                        </h3>
+                                        
+                                        {reviews.length > 0 ? (
+                                            <div className="space-y-6">
+                                                {reviews.map((review) => (
+                                                    <motion.div
+                                                        key={review.id}
+                                                        className="border-b border-gray-100 pb-5"
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ duration: 0.3 }}
+                                                    >
+                                                        <div className="flex items-center mb-2">
+                                                            <img 
+                                                                src={review.author.image} 
+                                                                alt={review.author.name}
+                                                                className="w-8 h-8 rounded-full object-cover mr-3" 
+                                                            />
+                                                            <div>
+                                                                <p className="font-medium text-gray-800">{review.author.name}</p>
+                                                                <p className="text-xs text-gray-500">{formatDate(review.createdAt)}</p>
+                                                            </div>
                                                         </div>
-                                                         {userRating === 0 && <p className="text-xs text-red-500 mt-1 animate-pulse">Please select a rating.</p>} {/* Added pulse */}
-                                                    </div>
-                                                    <div className="mb-4">
-                                                        <label htmlFor="review" className="block text-sm font-medium text-gray-700 mb-2">Your Review *</label>
-                                                        <textarea id="review" rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm" placeholder="How was it? Did you make any changes?" value={userReview} onChange={(e) => setUserReview(e.target.value)} required></textarea>
-                                                    </div>
-                                                    <motion.button type="submit" disabled={isSubmittingReview || userRating === 0 || userReview.trim() === ""} className={`px-5 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                                                         {isSubmittingReview ? (
-                                                            <> <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Submitting... </>
-                                                        ) : 'Submit Review'}
-                                                    </motion.button>
-                                                </form>
+                                                        
+                                                        <div className="mb-2">
+                                                            {renderStarRating(review.rating)}
+                                                        </div>
+                                                        
+                                                        <p className="text-gray-700">{review.comment}</p>
+                                                    </motion.div>
+                                                ))}
                                             </div>
-                                            <div>
-                                                 <h3 className={`text-xl font-semibold text-slate-800 mb-5 flex items-center gap-2 ${playfair.className}`}> <BookOpen className="w-5 h-5" /> All Reviews ({reviews.length}) </h3>
-                                                {reviews.length > 0 ? (
-                                                    <div className="space-y-6">
-                                                        {reviews.map((review) => (
-                                                            <motion.div key={review.id} className="border-b border-gray-100 pb-5 last:border-b-0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                                                                <div className="flex items-start mb-2">
-                                                                    <img src={review.author.image} alt={review.author.name} className="w-9 h-9 rounded-full object-cover mr-3 shadow" />
-                                                                    <div>
-                                                                        <p className="font-semibold text-gray-800">{review.author.name}</p>
-                                                                        <p className="text-xs text-gray-500">{formatDate(review.createdAt)}</p>
-                                                                    </div>
-                                                                    <div className="ml-auto">{renderStarRating(review.rating, false, 4)}</div>
-                                                                </div>
-                                                                <p className="text-gray-700 pl-12 text-sm">{review.comment}</p>
-                                                            </motion.div>
-                                                        ))}
-                                                    </div>
-                                                ) : ( <div className="text-center py-8 text-gray-500">No reviews yet. Be the first!</div> )}
+                                        ) : (
+                                            <div className="text-center py-8 text-gray-500">
+                                                No reviews yet. Be the first to share your experience!
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </motion.div>
-                            </AnimatePresence>
+                            )}
                         </div>
                     </div>
-
+                    
                     {/* Sidebar */}
-                     <div className="md:w-1/3 md:min-w-[320px] bg-slate-50 md:border-l border-t md:border-t-0 border-slate-200 p-6 flex-shrink-0 overflow-y-auto"> {/* Allow sidebar scroll */}
+                    <div className="md:w-1/3 md:min-w-[300px]">
                         <div className="sticky top-6">
-                            {/* Details */}
-                            <div className="bg-white rounded-lg p-5 mb-6 border border-slate-200 shadow-sm">
-                                <h3 className={`text-lg font-semibold text-slate-800 mb-4 ${playfair.className}`}>At a Glance</h3>
-                                <div className="space-y-3 text-sm">
-                                    <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-600 flex items-center gap-2"><Clock className="w-4 h-4" /> Prep Time</span><span className="font-medium text-slate-800">{recipe.prepTime}</span></div>
-                                    <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-600 flex items-center gap-2"><Clock className="w-4 h-4" /> Cook Time</span><span className="font-medium text-slate-800">{recipe.cookTime}</span></div>
-                                    <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-600 flex items-center gap-2"><Clock className="w-4 h-4" /> Total Time</span><span className="font-medium text-slate-800">{recipe.totalTime}</span></div>
-                                    <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-600 flex items-center gap-2"><Users className="w-4 h-4" /> Servings</span><span className="font-medium text-slate-800">{recipe.servings}</span></div>
-                                    <div className="flex justify-between py-2"><span className="text-slate-600 flex items-center gap-2"><ChefHat className="w-4 h-4" /> Difficulty</span><span className={`font-medium ${colors.difficulty[recipe.difficulty]}`}>{recipe.difficulty}</span></div>
+                            {/* Recipe Details */}
+                            <div className="bg-slate-50 rounded-lg p-5 mb-6">
+                                <h3 className={`text-lg font-semibold text-slate-800 mb-4 ${playfair.className}`}>
+                                    At a Glance
+                                </h3>
+                                
+                                <div className="space-y-3">
+                                    <div className="flex justify-between py-2 border-b border-slate-200">
+                                        <span className="text-slate-600 flex items-center gap-2">
+                                            <Clock className="w-4 h-4" /> Prep Time
+                                        </span>
+                                        <span className="font-medium text-slate-800">{recipe.prepTime}</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between py-2 border-b border-slate-200">
+                                        <span className="text-slate-600 flex items-center gap-2">
+                                            <Clock className="w-4 h-4" /> Cook Time
+                                        </span>
+                                        <span className="font-medium text-slate-800">{recipe.cookTime}</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between py-2 border-b border-slate-200">
+                                        <span className="text-slate-600 flex items-center gap-2">
+                                            <Clock className="w-4 h-4" /> Total Time
+                                        </span>
+                                        <span className="font-medium text-slate-800">{recipe.totalTime}</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between py-2 border-b border-slate-200">
+                                        <span className="text-slate-600 flex items-center gap-2">
+                                            <Users className="w-4 h-4" /> Servings
+                                        </span>
+                                        <span className="font-medium text-slate-800">{recipe.servings}</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between py-2">
+                                        <span className="text-slate-600 flex items-center gap-2">
+                                            <ChefHat className="w-4 h-4" /> Difficulty
+                                        </span>
+                                        <span className={`font-medium ${colors.difficulty[recipe.difficulty]}`}>
+                                            {recipe.difficulty}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                             {/* Comments */}
-                             <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm">
-                                <h3 className={`text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2 ${playfair.className}`}> <MessageSquare className="w-5 h-5" /> Comments ({comments.length}) </h3>
+                            
+                            {/* Comments Section */}
+                            <div className="bg-slate-50 rounded-lg p-5">
+                                <h3 className={`text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2 ${playfair.className}`}>
+                                    <MessageSquare className="w-5 h-5" />
+                                    Comments ({comments.length})
+                                </h3>
+                                
+                                {/* Comment Form */}
                                 <form onSubmit={handleCommentSubmit} className="mb-6">
                                     <div className="mb-3">
-                                        <textarea rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm" placeholder="Ask a question or add a comment..." value={userComment} onChange={(e) => setUserComment(e.target.value)} required></textarea>
+                                        <textarea
+                                            rows={3}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                            placeholder="Add a comment or question..."
+                                            value={userComment}
+                                            onChange={(e) => setUserComment(e.target.value)}
+                                            required
+                                        ></textarea>
                                     </div>
-                                    <motion.button type="submit" disabled={isSubmittingComment || userComment.trim() === ""} className={`px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                                        {isSubmittingComment ? (
-                                            <> <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" /* SVG Spinner */></svg> Posting... </>
-                                        ) : 'Post Comment'}
-                                    </motion.button>
+                                    
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting || userComment.trim() === ""}
+                                        className={`px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors
+                                            ${(isSubmitting || userComment.trim() === "") ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {isSubmitting ? 'Posting...' : 'Post Comment'}
+                                    </button>
                                 </form>
-                                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"> {/* Added scrollbar styling class */}
+                                
+                                {/* Comments List */}
+                                <div className="space-y-4 max-h-[400px] overflow-y-auto">
                                     {comments.length > 0 ? (
                                         comments.map((comment) => (
-                                            <motion.div key={comment.id} className="border-b border-gray-100 pb-4 last:border-b-0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-                                                <div className="flex items-start mb-2">
-                                                    <img src={comment.author.image} alt={comment.author.name} className="w-8 h-8 rounded-full object-cover mr-2 shadow" />
+                                            <motion.div
+                                                key={comment.id}
+                                                className="border-b border-gray-100 pb-4"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <div className="flex items-center mb-2">
+                                                    <img 
+                                                        src={comment.author.image} 
+                                                        alt={comment.author.name}
+                                                        className="w-7 h-7 rounded-full object-cover mr-2" 
+                                                    />
                                                     <div>
-                                                        <p className="font-semibold text-gray-800 text-sm">{comment.author.name}</p>
+                                                        <p className="font-medium text-gray-800 text-sm">{comment.author.name}</p>
                                                         <p className="text-xs text-gray-500">{formatDate(comment.createdAt)}</p>
                                                     </div>
                                                 </div>
-                                                <p className="text-gray-700 text-sm pl-10">{comment.text}</p>
+                                                
+                                                <p className="text-gray-700 text-sm">{comment.text}</p>
                                             </motion.div>
                                         ))
-                                    ) : (<div className="text-center py-4 text-gray-500 text-sm">No comments yet.</div>)}
+                                    ) : (
+                                        <div className="text-center py-4 text-gray-500 text-sm">
+                                            No comments yet. Start the conversation!
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -837,520 +1016,227 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({ recipe, initialRe
         </div>
     );
 };
-
-
-// --- Back to Top Button Component (Enhanced with Animations) ---
-const BackToTopButton: React.FC = () => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        const toggleVisibility = () => setIsVisible(window.pageYOffset > 300);
-        window.addEventListener('scroll', toggleVisibility);
-        return () => window.removeEventListener('scroll', toggleVisibility);
-    }, []);
-
-    const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    return (
-        <AnimatePresence>
-            {isVisible && (
-                <motion.button
-                    onClick={scrollToTop}
-                    className="fixed bottom-6 right-6 p-3 bg-amber-600 text-white rounded-full shadow-lg z-40 hover:bg-amber-700" // Added hover color
-                    aria-label="Back to top"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }} // Faster exit
-                    whileHover={{ scale: 1.1, y: -2 }} // Add y-offset on hover
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }} // Spring animation
-                >
-                    <motion.div
-                        animate={{ y: [0, -3, 0] }} // Bouncing arrow
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                        <ChevronUp className="w-5 h-5" />
-                    </motion.div>
-                </motion.button>
-            )}
-        </AnimatePresence>
-    );
-};
-
-
-// --- Share Modal Component (Enhanced with Tabs and Animations) ---
-interface ShareModalProps { recipe: Recipe; onClose: () => void; }
-const ShareModal: React.FC<ShareModalProps> = ({ recipe, onClose }) => {
-    const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/recipe/${recipe.id}` : `https://heritage-recipes.example.com/recipe/${recipe.id}`;
-    const [copied, setCopied] = useState(false);
-    const [shareOption, setShareOption] = useState<'link' | 'social' | 'email'>('link'); // Default to link tab
-
-    const copyToClipboard = async () => {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) { console.error('Failed to copy: ', err); }
-    };
-
-    // Social share handlers
-    const shareOnFacebook = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-    const shareOnTwitter = () => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`Check out this amazing recipe: ${recipe.title}`)}`, '_blank');
-    const shareOnWhatsapp = () => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out this amazing recipe: ${recipe.title} - ${shareUrl}`)}`, '_blank');
-    const shareOnPinterest = () => window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&media=${encodeURIComponent(recipe.image)}&description=${encodeURIComponent(recipe.title)}`, '_blank');
-
-    // Email share state and handler
-    const [emailTo, setEmailTo] = useState('');
-    const [emailMessage, setEmailMessage] = useState(`I found this amazing recipe for ${recipe.title} and thought you might enjoy it!\n\n${shareUrl}`);
-    const [isSending, setIsSending] = useState(false);
-    const [emailSent, setEmailSent] = useState(false);
-
-    const handleEmailShare = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!emailTo || !/\S+@\S+\.\S+/.test(emailTo)) { // Basic email validation
-             alert("Please enter a valid recipient email address.");
-             return;
-        }
-        setIsSending(true);
-        setTimeout(() => { // Simulate sending
-            setIsSending(false);
-            setEmailSent(true);
-            setEmailTo(''); // Optionally clear form
-            // setEmailMessage(`I found this amazing recipe for ${recipe.title}...`); // Optionally reset message
-        }, 1500);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <motion.div
-                className="bg-white rounded-xl p-6 max-w-md w-full mx-auto overflow-hidden" // Added overflow-hidden
-                onClick={(e) => e.stopPropagation()}
-                variants={animations.popIn} initial="initial" animate="animate" exit="exit"
-            >
-                <div className="flex justify-between items-center mb-4">
-                    <motion.h3 className={`text-xl font-semibold ${playfair.className}`} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}> Share Recipe </motion.h3>
-                    <motion.button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition-colors" aria-label="Close share modal" whileHover={{ rotate: 90, scale: 1.1 }} whileTap={{ scale: 0.9 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}> <X className="w-5 h-5" /> </motion.button>
-                </div>
-
-                <motion.div className="mb-5" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
-                    <p className="text-slate-600 mb-3 text-sm">Share this delicious "{recipe.title}" recipe!</p>
-                    <motion.div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200" whileHover={{ y: -2, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
-                        <img src={recipe.image} alt={recipe.title} className="w-14 h-14 object-cover rounded-md flex-shrink-0" />
-                        <div>
-                            <h4 className="font-semibold text-slate-800 leading-tight">{recipe.title}</h4>
-                            <p className="text-xs text-slate-500">{recipe.culture} Cuisine</p>
-                        </div>
-                    </motion.div>
-                </motion.div>
-
-                {/* Share Options Tabs */}
-                 <motion.div className="flex border-b border-slate-200 mb-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                    {(['link', 'social', 'email'] as const).map((option) => (
-                        <button key={option} className={`relative px-4 py-2 font-medium capitalize transition-colors outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 rounded-t-md text-sm ${shareOption === option ? 'text-amber-700' : 'text-gray-500 hover:text-amber-600'}`} onClick={() => setShareOption(option)}>
-                            <span className="flex items-center gap-1.5">
-                                {option === 'link' && <Link className="w-4 h-4" />}
-                                {option === 'social' && <Share className="w-4 h-4" />}
-                                {option === 'email' && <Mail className="w-4 h-4" />}
-                                {option}
-                            </span>
-                             {shareOption === option && (
-                                <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600" layoutId="share-underline" transition={{ type: "spring", stiffness: 350, damping: 30 }} />
-                            )}
-                        </button>
-                    ))}
-                </motion.div>
-
-                <AnimatePresence mode="wait">
-                    {/* Content based on selected tab */}
-                    <motion.div
-                        key={shareOption} // Key change triggers animation
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.25 }}
-                    >
-                        {shareOption === 'link' && (
-                            <div className="flex items-center mb-4">
-                                <input type="text" value={shareUrl} readOnly className="flex-grow px-3 py-2 border border-slate-300 rounded-l-md bg-slate-100 text-sm truncate" />
-                                <motion.button onClick={copyToClipboard} className={`${copied ? 'bg-green-600' : 'bg-amber-600 hover:bg-amber-700'} text-white px-4 py-2 rounded-r-md transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 flex items-center gap-1.5 min-w-[90px] justify-center`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    {copied ? (<><Check className="w-4 h-4" />Copied!</>) : (<><Copy className="w-4 h-4" />Copy</>)}
-                                </motion.button>
-                            </div>
-                        )}
-
-                        {shareOption === 'social' && (
-                             <div className="flex justify-center flex-wrap gap-3 mb-4"> {/* Use flex-wrap */}
-                                {[
-                                    { handler: shareOnFacebook, title: "Facebook", color: "bg-blue-600 hover:bg-blue-700", icon: <svg/> }, // Replace with actual icons
-                                    { handler: shareOnTwitter, title: "Twitter", color: "bg-sky-500 hover:bg-sky-600", icon: <svg/> },
-                                    { handler: shareOnWhatsapp, title: "WhatsApp", color: "bg-green-600 hover:bg-green-700", icon: <svg/> },
-                                    { handler: shareOnPinterest, title: "Pinterest", color: "bg-red-600 hover:bg-red-700", icon: <svg/> },
-                                ].map((social, index) => (
-                                     <motion.button key={social.title} onClick={social.handler} title={`Share on ${social.title}`} className={`p-3 ${social.color} text-white rounded-full transition-colors shadow-sm flex items-center justify-center w-11 h-11`} whileHover={{ scale: 1.15, rotate: (index % 2 === 0 ? 5 : -5) }} whileTap={{ scale: 0.9 }}>
-                                        {/* Placeholder Icon - Use your icon library */}
-                                        {social.title.charAt(0)}
-                                    </motion.button>
-                                ))}
-                            </div>
-                        )}
-
-                        {shareOption === 'email' && (
-                             <div>
-                                {!emailSent ? (
-                                    <form onSubmit={handleEmailShare} className="space-y-3 mb-4">
-                                        <div>
-                                            <label htmlFor="emailTo" className="sr-only">Recipient Email</label>
-                                            <input type="email" id="emailTo" value={emailTo} onChange={(e) => setEmailTo(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm" placeholder="Recipient's email *" required />
-                                        </div>
-                                        <div>
-                                             <label htmlFor="emailMessage" className="sr-only">Message</label>
-                                            <textarea id="emailMessage" rows={3} value={emailMessage} onChange={(e) => setEmailMessage(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm" required></textarea>
-                                        </div>
-                                        <motion.button type="submit" className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-70" disabled={isSending || !emailTo} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            {isSending ? (<><svg className="animate-spin h-4 w-4 mr-1" /* Spinner SVG */></svg> Sending...</>) : (<><Send className="w-4 h-4" /> Send Email</>)}
-                                        </motion.button>
-                                    </form>
-                                ) : (
-                                     <motion.div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center" initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
-                                        <div className="flex justify-center mb-2"><div className="bg-green-100 p-2 rounded-full"><Check className="w-6 h-6 text-green-600" /></div></div>
-                                        <h4 className="text-green-800 font-medium mb-1">Email Sent!</h4>
-                                        <p className="text-green-700 text-sm mb-3">Your friend will receive the recipe shortly.</p>
-                                        <motion.button onClick={() => setEmailSent(false)} className="text-sm text-green-700 hover:text-green-900 font-medium underline" whileHover={{ scale: 1.05 }}> Send another </motion.button>
-                                    </motion.div>
-                                )}
-                            </div>
-                        )}
-                    </motion.div>
-                </AnimatePresence>
-
-                <motion.div className="text-center text-xs text-slate-500 mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}> Sharing is caring! </motion.div>
-            </motion.div>
-        </div>
-    );
-};
-
 
 // --- Main App Component ---
 const HeritageRecipes: React.FC = () => {
-    // ... (State variables including new ones: isSubscribed, email, isSubmittingEmail, showNotification, notificationMessage, notificationType)
-    const [recipes, setRecipes] = useState<Recipe[]>(recipeData);
+    const [] = useState<Recipe[]>(recipeData);
     const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-    const [allReviews, setAllReviews] = useState<{ [key: string]: Review[] }>(reviewsData);
-    const [allComments, setAllComments] = useState<{ [key: string]: Comment[] }>(commentsData);
+    const [reviews, setReviews] = useState<{ [key: string]: Review[] }>(reviewsData);
+    const [comments, setComments] = useState<{ [key: string]: Comment[] }>(commentsData);
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [activeFilters, setActiveFilters] = useState<ActiveFilters>({ difficulty: [], diet: [], culture: [] });
-    const [savedRecipes, setSavedRecipes] = useState<string[]>([]);
-    const [shareModalOpen, setShareModalOpen] = useState<boolean>(false);
-    const [recipeToShare, setRecipeToShare] = useState<Recipe | null>(null);
-    const [showSavedOnly, setShowSavedOnly] = useState<boolean>(false);
-    // New state
-    const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-    const [email, setEmail] = useState<string>("");
-    const [isSubmittingEmail, setIsSubmittingEmail] = useState<boolean>(false);
-    const [showNotification, setShowNotification] = useState<boolean>(false);
-    const [notificationMessage, setNotificationMessage] = useState<string>("");
-    const [notificationType, setNotificationType] = useState<"success" | "error" | "info">("info");
-
-
-    // ... (useEffect for localStorage)
-    useEffect(() => {
-        const saved = localStorage.getItem('savedHeritageRecipes');
-        if (saved) { try { setSavedRecipes(JSON.parse(saved)); } catch (e) { console.error("Failed to parse saved recipes", e)} }
-    }, []);
-    useEffect(() => {
-        localStorage.setItem('savedHeritageRecipes', JSON.stringify(savedRecipes));
-    }, [savedRecipes]);
-
-    // --- Helper Functions & Memos ---
-    const filterOptions = useMemo(() => { /* ... as before ... */
-        const difficulties = [...new Set(recipeData.map(r => r.difficulty))].sort((a,b) => ['Easy', 'Medium', 'Hard'].indexOf(a) - ['Easy', 'Medium', 'Hard'].indexOf(b));
-        const diets = [...new Set(recipeData.flatMap(r => r.diet))].sort();
-        const cultures = [...new Set(recipeData.map(r => r.culture))].sort();
+    const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
+        difficulty: [],
+        diet: [],
+        culture: []
+    });
+    
+    // Extract filter options from data
+    const filterOptions = useMemo(() => {
+        const difficulties = [...new Set(recipeData.map(r => r.difficulty))];
+        const diets = [...new Set(recipeData.flatMap(r => r.diet))];
+        const cultures = [...new Set(recipeData.map(r => r.culture))];
+        
         return { difficulties, diets, cultures };
     }, []);
-    const filteredRecipes = useMemo(() => { /* ... as before ... */
+    
+    // Apply filters and search
+    const filteredRecipes = useMemo(() => {
         return recipeData.filter(recipe => {
-            if (showSavedOnly && !savedRecipes.includes(recipe.id)) return false;
-            if (searchTerm && !recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) && !recipe.description.toLowerCase().includes(searchTerm.toLowerCase()) && !recipe.culture.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-            if (activeFilters.difficulty.length > 0 && !activeFilters.difficulty.includes(recipe.difficulty)) return false;
-            if (activeFilters.diet.length > 0 && !activeFilters.diet.some(diet => recipe.diet.includes(diet))) return false;
-            if (activeFilters.culture.length > 0 && !activeFilters.culture.includes(recipe.culture)) return false;
+            // Apply search filter
+            if (searchTerm && !recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
+                !recipe.description.toLowerCase().includes(searchTerm.toLowerCase())) {
+                return false;
+            }
+            
+            // Apply difficulty filter
+            if (activeFilters.difficulty.length > 0 && !activeFilters.difficulty.includes(recipe.difficulty)) {
+                return false;
+            }
+            
+            // Apply diet filter
+            if (activeFilters.diet.length > 0 && !activeFilters.diet.some(diet => recipe.diet.includes(diet))) {
+                return false;
+            }
+            
+            // Apply culture filter
+            if (activeFilters.culture.length > 0 && !activeFilters.culture.includes(recipe.culture)) {
+                return false;
+            }
+            
             return true;
         });
-    }, [searchTerm, activeFilters, savedRecipes, showSavedOnly]);
-    const featuredRecipe = useMemo(() => recipes[0], [recipes]);
-    const activeFilterCount = Object.values(activeFilters).reduce((sum, cat) => sum + cat.length, 0) + (showSavedOnly ? 1 : 0);
-
-
-    // --- Handlers ---
-    const showNotificationMessage = (message: string, type: "success" | "error" | "info" = "info") => { /* ... as before ... */
-        setNotificationMessage(message);
-        setNotificationType(type);
-        setShowNotification(true);
-        // Auto-hide notification
-        const timer = setTimeout(() => setShowNotification(false), 3500); // Slightly longer duration
-        // Optional: Allow manual dismiss to clear timeout
-        // return () => clearTimeout(timer);
-    };
-
-    const handleFilterChange = (category: keyof ActiveFilters, value: string) => { /* ... as before ... */
+    }, [searchTerm, activeFilters]);
+    
+    // Handle filter changes
+    const handleFilterChange = (category: keyof ActiveFilters, value: string) => {
         setActiveFilters(prev => {
-            const currentCategoryFilters = prev[category];
-            const newCategoryFilters = currentCategoryFilters.includes(value)
-                ? currentCategoryFilters.filter(item => item !== value)
-                : [...currentCategoryFilters, value];
-            return { ...prev, [category]: newCategoryFilters };
-        });
-    };
-    const handleResetFilters = () => { /* ... as before ... */
-        setActiveFilters({ difficulty: [], diet: [], culture: [] });
-        setSearchTerm("");
-        setShowSavedOnly(false);
-    };
-    const handleReviewSubmit = (newReview: Review) => { /* ... as before ... */
-        const recipeId = newReview.recipeId;
-        setAllReviews(prev => ({ ...prev, [recipeId]: [newReview, ...(prev[recipeId] || [])] }));
-        showNotificationMessage("Review submitted successfully!", "success"); // Add notification
-    };
-    const handleCommentSubmit = (newComment: Comment) => { /* ... as before ... */
-        const recipeId = newComment.recipeId;
-        setAllComments(prev => ({ ...prev, [recipeId]: [newComment, ...(prev[recipeId] || [])] }));
-         showNotificationMessage("Comment posted!", "success"); // Add notification
-    };
-    const handleToggleSave = (recipeId: string) => { // Updated with notification logic
-        const recipe = recipes.find(r => r.id === recipeId);
-        setSavedRecipes(prev => {
-            if (prev.includes(recipeId)) {
-                showNotificationMessage(`Removed "${recipe?.title || 'Recipe'}" from saved`, "info");
-                return prev.filter(id => id !== recipeId);
+            const newFilters = { ...prev };
+            
+            if (newFilters[category].includes(value)) {
+                // Remove the filter if already active
+                newFilters[category] = newFilters[category].filter(item => item !== value);
             } else {
-                showNotificationMessage(`Saved "${recipe?.title || 'Recipe'}"!`, "success");
-                return [...prev, recipeId];
+                // Add the filter if not active
+                newFilters[category] = [...newFilters[category], value];
             }
+            
+            return newFilters;
         });
     };
-    const handleShareRecipe = (recipe: Recipe) => { /* ... as before ... */
-        setRecipeToShare(recipe);
-        setShareModalOpen(true);
+    
+    // Reset all filters
+    const handleResetFilters = () => {
+        setActiveFilters({
+            difficulty: [],
+            diet: [],
+            culture: []
+        });
+        setSearchTerm("");
     };
-    const handleSubscribe = (e: React.FormEvent) => { // Added newsletter handler
-        e.preventDefault();
-         if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            showNotificationMessage("Please enter a valid email address.", "error");
-            return;
-        }
-        setIsSubmittingEmail(true);
-        setTimeout(() => { // Simulate API call
-            setIsSubmittingEmail(false);
-            setIsSubscribed(true);
-            setEmail("");
-            showNotificationMessage("Successfully subscribed!", "success");
-        }, 1500);
+    
+    // Handle review submissions
+    const handleReviewSubmit = (newReview: Review) => {
+        const recipeId = newReview.recipeId;
+        setReviews(prev => ({
+            ...prev,
+            [recipeId]: prev[recipeId] ? [newReview, ...prev[recipeId]] : [newReview]
+        }));
     };
-
-
-    // --- Render ---
+    
+    // Handle comment submissions
+    const handleCommentSubmit = (newComment: Comment) => {
+        const recipeId = newComment.recipeId;
+        setComments(prev => ({
+            ...prev,
+            [recipeId]: prev[recipeId] ? [newComment, ...prev[recipeId]] : [newComment]
+        }));
+    };
+    
     return (
-        <div className={`min-h-screen bg-[${colors.neutral.bg}] ${playfair.variable} ${nunitoSans.variable} text-[${colors.text.primary}] selection:bg-amber-200 selection:text-amber-900`}> {/* Added selection style */}
-            {/* Hero Section */}
-            <div className="relative bg-slate-800 text-white overflow-hidden"> {/* Added overflow-hidden */}
-                <div className="absolute inset-0">
-                     {/* Animated background image */}
-                     <motion.img
-                        src="https://images.unsplash.com/photo-1495195129352-aeb3c6505b6?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Wooden cooking background with spices"
-                        className="w-full h-full object-cover opacity-30"
-                        initial={{ scale: 1.1, opacity: 0.2 }} // Start slightly zoomed
-                        animate={{ scale: 1, opacity: 0.3 }}   // Zoom out slowly
-                        transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "reverse" }} // Slow, smooth loop
+        <div className={`min-h-screen bg-[${colors.neutral.bg}] ${playfair.variable} ${nunitoSans.variable}`}>
+            {/* Header */}
+            <header className="bg-gradient-to-r from-amber-600 to-amber-700 text-white">
+                <div className="container mx-auto px-4 py-12 text-center">
+                    <h1 className={`text-4xl md:text-5xl font-bold mb-3 ${playfair.className}`}>
+                        Heritage Recipes
+                    </h1>
+                    <p className="text-lg md:text-xl text-amber-100 max-w-2xl mx-auto">
+                        Discover authentic recipes that celebrate cultural traditions and culinary heritage
+                    </p>
+                </div>
+            </header>
+            
+            <main className="container mx-auto px-4 py-10">
+                {/* Search Bar */}
+                <div className="relative max-w-xl mx-auto mb-8">
+                    <input
+                        type="text"
+                        placeholder="Search for recipes, ingredients, or cuisines..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-3 pl-12 rounded-full border border-slate-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-900/70 via-slate-800/80 to-slate-900/90"></div>
-                </div>
-                <div className="relative container mx-auto px-4 py-20 md:py-28 text-center md:text-left">
-                    <div className="max-w-3xl">
-                        <motion.h1 className={`text-4xl md:text-6xl font-bold mb-4 ${playfair.className}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}> Heritage Recipes </motion.h1>
-                        <motion.p className="text-lg md:text-xl text-amber-100/90 mb-8 max-w-2xl mx-auto md:mx-0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}> Savor the authentic tastes of cultural traditions and culinary legacies passed down through generations. </motion.p>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                            <button onClick={() => document.getElementById('recipes-section')?.scrollIntoView({ behavior: 'smooth' })} className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg shadow-lg transition-colors duration-300 font-semibold group inline-flex items-center"> {/* Added group and flex */}
-                                Explore Recipes
-                                 <motion.span className="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1"> → </motion.span> {/* Animated arrow */}
-                            </button>
-                        </motion.div>
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
                     </div>
                 </div>
-            </div>
-
-            <main className="container mx-auto px-4 py-10 md:py-16">
-                 {/* Featured Recipe Section */}
-                 {featuredRecipe && ( <section className="mb-12 md:mb-16"> <h2 className={`text-2xl md:text-3xl font-bold text-slate-800 mb-6 text-center md:text-left ${playfair.className}`}> Recipe Spotlight </h2> <FeaturedRecipe recipe={featuredRecipe} onSelect={setSelectedRecipe} /> </section> )}
-
-                {/* Search and Filter Section */}
-                 <section id="recipes-section" className="mb-12 md:mb-16">
-                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                        <h2 className={`text-2xl md:text-3xl font-bold text-slate-800 ${playfair.className}`}> Discover Recipes </h2>
-                         <div className="relative max-w-md w-full md:w-auto flex-grow md:flex-grow-0">
-                            <input type="text" placeholder="Search recipes, cuisines..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-4 py-2.5 pl-10 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm transition-all duration-200 focus:shadow-md" /> {/* Added focus shadow */}
-                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"> {/* Added pointer-events-none */}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-                            </div>
-                             {/* Clear search button */}
-                             {searchTerm && (
-                                <motion.button
-                                    onClick={() => setSearchTerm("")}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100"
-                                    aria-label="Clear search"
-                                    initial={{ scale: 0, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0, opacity: 0 }}
-                                >
-                                    <X size={16} />
-                                </motion.button>
-                            )}
-                        </div>
-                    </div>
-
-                     {/* Filter Controls */}
-                     <motion.div layout className="bg-white rounded-xl shadow border border-slate-200 p-5 mb-8 overflow-hidden">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 mb-4"> {/* Adjusted gap */}
-                            <h3 className="font-semibold text-slate-800 mr-2 flex items-center gap-1.5"><Filter className="w-4 h-4 text-slate-500"/>Filter By:</h3>
-                            <motion.button onClick={() => setShowSavedOnly(!showSavedOnly)} className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 border ${showSavedOnly ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-sm' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Bookmark className={`h-4 w-4 transition-colors duration-200 ${showSavedOnly ? 'text-amber-600 fill-current' : 'text-slate-500'}`} /> Saved ({savedRecipes.length})
-                            </motion.button>
-                             {activeFilterCount > 0 && (
-                                <motion.button onClick={handleResetFilters} className="ml-auto text-sm text-amber-600 hover:text-amber-800 font-medium flex items-center gap-1 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <RefreshCw className="h-3.5 w-3.5"/> Clear Filters ({activeFilterCount})
-                                </motion.button>
-                            )}
-                        </div>
-                         <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5"> {/* Added layout animation, adjusted gap */}
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-500 mb-2.5">Difficulty</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {filterOptions.difficulties.map(difficulty => (
-                                        <motion.button key={difficulty} onClick={() => handleFilterChange('difficulty', difficulty)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-amber-400 ${activeFilters.difficulty.includes(difficulty) ? `${getDifficultyBgClass(difficulty as "Easy" | "Medium" | "Hard")} text-white border-transparent scale-105` : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'}`} whileHover={{ y: -1 }} whileTap={{ scale: 0.95 }}>
-                                            {difficulty}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-500 mb-2.5">Dietary Option</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {filterOptions.diets.map(diet => (
-                                        <motion.button key={diet} onClick={() => handleFilterChange('diet', diet)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400 ${activeFilters.diet.includes(diet) ? 'bg-green-600 text-white border-transparent scale-105' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'}`} whileHover={{ y: -1 }} whileTap={{ scale: 0.95 }}>
-                                            {diet}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-500 mb-2.5">Cuisine / Culture</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {filterOptions.cultures.map(culture => (
-                                        <motion.button key={culture} onClick={() => handleFilterChange('culture', culture)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-400 ${activeFilters.culture.includes(culture) ? 'bg-blue-600 text-white border-transparent scale-105' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'}`} whileHover={{ y: -1 }} whileTap={{ scale: 0.95 }}>
-                                            {culture}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-
-                     {/* Recipe Grid */}
-                     <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" layout variants={animations.stagger.container} initial="initial" animate="animate">
-                        <AnimatePresence>
-                            {filteredRecipes.length > 0 ? (
-                                filteredRecipes.map(recipe => (
-                                    <RecipeCard key={recipe.id} recipe={recipe} reviews={allReviews} comments={allComments} onSelect={setSelectedRecipe} savedRecipes={savedRecipes} onToggleSave={handleToggleSave} onShareRecipe={handleShareRecipe} />
-                                ))
-                            ) : (
-                                 <motion.div className="col-span-full text-center py-16" variants={animations.fadeIn} initial="initial" animate="animate" exit="exit">
-                                    <div className="inline-block p-4 rounded-full bg-amber-100 text-amber-600 mb-4 animate-bounce"> {/* Added bounce */}
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    </div>
-                                    <p className="text-xl text-slate-700 font-semibold mb-2">No Recipes Found</p>
-                                    <p className="text-slate-500 mb-6">Try adjusting your filters or search term.</p>
-                                    <motion.button onClick={handleResetFilters} className="px-5 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors font-medium" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}> Reset Filters </motion.button>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </motion.div>
-                </section>
-
-                {/* Newsletter Section */}
-                <section className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-8 md:p-12 mb-12 md:mb-16 text-white shadow-lg overflow-hidden relative">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-xl"></div>
-                    <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full translate-x-1/3 translate-y-1/3 blur-2xl"></div>
-                     <div className="max-w-3xl mx-auto text-center relative z-10">
-                        <motion.h2 className={`text-2xl md:text-3xl font-bold mb-4 ${playfair.className}`} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5 }}> Join Our Culinary Journey </motion.h2>
-                        <motion.p className="text-teal-100 mb-6" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5, delay: 0.1 }}> Get weekly recipes, cooking tips, and stories from around the world delivered to your inbox. </motion.p>
-                        {!isSubscribed ? (
-                            <motion.form className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" onSubmit={handleSubscribe} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                                <input type="email" placeholder="Your email address" className="flex-grow px-4 py-3 rounded-lg text-slate-800 focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none placeholder-slate-400" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                                <motion.button type="submit" className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-lg transition-colors duration-300 font-semibold disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmittingEmail} whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
-                                    {isSubmittingEmail ? (<span className="flex items-center justify-center"><svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" /* Spinner */></svg>Subscribing...</span>) : ('Subscribe')}
-                                </motion.button>
-                            </motion.form>
+                
+                {/* Filters */}
+                <FilterButtons 
+                    options={filterOptions}
+                    activeFilters={activeFilters}
+                    onFilterChange={handleFilterChange}
+                    onResetFilters={handleResetFilters}
+                />
+                
+                {/* Recipe Grid */}
+                <motion.div 
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+                    layout
+                    variants={animations.stagger.container}
+                    initial="initial"
+                    animate="animate"
+                >
+                    <AnimatePresence>
+                        {filteredRecipes.length > 0 ? (
+                            filteredRecipes.map(recipe => (
+                                <RecipeCard
+                                    key={recipe.id}
+                                    recipe={recipe}
+                                    reviews={reviews}
+                                    comments={comments}
+                                    onSelect={setSelectedRecipe}
+                                />
+                            ))
                         ) : (
-                            <motion.div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-lg mx-auto border border-teal-400/30" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-                                <div className="flex items-center justify-center mb-3"> <svg className="w-10 h-10 text-teal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> </div>
-                                <h3 className="text-xl font-semibold mb-2">Thank You!</h3>
-                                <p className="text-teal-100">Check your inbox to confirm your subscription.</p>
+                            <motion.div 
+                                className="col-span-full text-center py-12"
+                                variants={animations.fadeIn}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                            >
+                                <p className="text-xl text-slate-500">No recipes found matching your search criteria.</p>
+                                <button 
+                                    onClick={handleResetFilters}
+                                    className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+                                >
+                                    Reset Filters
+                                </button>
                             </motion.div>
                         )}
-                        <p className="text-xs text-teal-200 mt-4">We respect your privacy. Unsubscribe anytime.</p>
-                    </div>
-                </section>
-
+                    </AnimatePresence>
+                </motion.div>
             </main>
-
-            {/* Modals */}
-            <AnimatePresence> {selectedRecipe && ( <RecipeDetailModal recipe={selectedRecipe} initialReviews={allReviews[selectedRecipe.id] || []} initialComments={allComments[selectedRecipe.id] || []} onClose={() => setSelectedRecipe(null)} onReviewSubmit={handleReviewSubmit} onCommentSubmit={handleCommentSubmit} /> )} </AnimatePresence>
-            <AnimatePresence> {shareModalOpen && recipeToShare && ( <ShareModal recipe={recipeToShare} onClose={() => setShareModalOpen(false)} /> )} </AnimatePresence>
-
-            {/* Notification Toast */}
+            
+            {/* Recipe Detail Modal */}
             <AnimatePresence>
-                {showNotification && (
-                    <motion.div
-                        className={`fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg z-[60] flex items-center gap-3 text-white text-sm font-medium ${notificationType === 'success' ? 'bg-green-600' : notificationType === 'error' ? 'bg-red-600' : 'bg-blue-600'}`}
-                        initial={{ opacity: 0, y: 50 }} // Start further down
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }} // Springy entrance
-                        drag="x" // Allow dragging to dismiss
-                        dragConstraints={{ left: 0, right: 100 }}
-                        onDragEnd={(event, info) => { if (info.offset.x > 50) setShowNotification(false); }} // Dismiss on drag right
-                    >
-                        <span> {/* Icon based on type */}
-                            {notificationType === 'success' && <Check className="w-5 h-5" />}
-                            {notificationType === 'error' && <X className="w-5 h-5" />}
-                            {notificationType === 'info' && <Info className="w-5 h-5" />} {/* Assuming Info icon exists */}
-                        </span>
-                        <p>{notificationMessage}</p>
-                        <button onClick={() => setShowNotification(false)} className="ml-2 text-white/70 hover:text-white p-1 -mr-1 rounded-full hover:bg-white/20"> <X size={16} /> </button>
-                    </motion.div>
+                {selectedRecipe && (
+                    <RecipeDetailModal
+                        recipe={selectedRecipe}
+                        initialReviews={reviews[selectedRecipe.id] || []}
+                        initialComments={comments[selectedRecipe.id] || []}
+                        onClose={() => setSelectedRecipe(null)}
+                        onReviewSubmit={handleReviewSubmit}
+                        onCommentSubmit={handleCommentSubmit}
+                    />
                 )}
             </AnimatePresence>
-
-            {/* Back to Top Button */}
-            <BackToTopButton />
-
+            
             {/* Footer */}
-            <footer className="bg-slate-800 text-slate-300 py-10">
+            <footer className="bg-slate-800 text-white py-8">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                    <div className="flex flex-col md:flex-row justify-between items-center">
                         <div className="mb-6 md:mb-0">
-                            <motion.h2 className={`text-2xl font-bold text-white ${playfair.className}`} whileHover={{ scale: 1.05, color: "#fcd34d" }} transition={{ type: "spring", stiffness: 400, damping: 10 }}> Heritage Recipes </motion.h2>
-                            <p className="text-slate-400 mt-1 text-sm">Celebrating culinary traditions</p>
+                            <h2 className={`text-2xl font-bold ${playfair.className}`}>Heritage Recipes</h2>
+                            <p className="text-slate-400 mt-1">Celebrating culinary traditions around the world</p>
                         </div>
+                        
                         <div className="flex flex-col items-center md:items-end">
                             <div className="flex space-x-4 mb-4">
-                                 {/* Social media links with hover animations */}
-                                <motion.a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Facebook" whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}> <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg> </motion.a>
-                                <motion.a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Instagram" whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}> <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg> </motion.a>
-                                <motion.a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Twitter" whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}> <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg> </motion.a>
-                             </div>
-                            <motion.p className="text-slate-400 text-sm" initial={{ opacity: 0.8 }} whileHover={{ opacity: 1 }}> © {new Date().getFullYear()} Heritage Recipes. All rights reserved. </motion.p>
+                                <a href="#" className="text-white hover:text-amber-400 transition-colors">
+                                    <span className="sr-only">Facebook</span>
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+                                    </svg>
+                                </a>
+                                <a href="#" className="text-white hover:text-amber-400 transition-colors">
+                                    <span className="sr-only">Instagram</span>
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465.668.25 1.235.582 1.8 1.146.565.565.897 1.132 1.148 1.8.246.636.416 1.363.465 2.427.047 1.024.06 1.379.06 3.808s-.013 2.784-.06 3.808c-.049 1.064-.219 1.791-.465 2.427-.25.668-.583 1.235-1.147 1.8-.567.566-1.133.898-1.801 1.148-.636.246-1.363.415-2.427.464-1.024.048-1.379.06-3.808.06-2.43 0-2.784-.012-3.808-.06-1.064-.048-1.791-.218-2.427-.464-.668-.25-1.235-.582-1.8-1.147-.566-.566-.898-1.133-1.148-1.801-.246-.636-.416-1.363-.464-2.427-.048-1.024-.06-1.379-.06-3.808s.012-2.784.06-3.808c.048-1.064.218-1.791.464-2.427.25-.668.582-1.235 1.147-1.8.567-.566 1.132-.897 1.8-1.147.637-.247 1.364-.416 2.428-.465 1.024-.047 1.379-.06 3.808-.06zm0 2.693c-2.392 0-2.717.01-3.725.057-.9.042-1.389.193-1.714.32-.436.17-.751.37-1.071.69-.32.32-.52.635-.69 1.07-.127.326-.278.815-.32 1.715-.047 1.008-.057 1.333-.057 3.725s.01 2.717.057 3.725c.042.9.193 1.389.32 1.714.17.436.37.751.69 1.071.32.32.635.52 1.07.69.326.127.815.278 1.715.32 1.008.047 1.333.057 3.725.057s2.717-.01 3.725-.057c.9-.042 1.389-.193 1.714-.32.436-.17.751-.37 1.071-.69.32-.32.52-.635.69-1.07.127-.326.278-.815.32-1.715.047-1.008.057-1.333.057-3.725s-.01-2.717-.057-3.725c-.042-.9-.193-1.389-.32-1.714-.17-.436-.37-.751-.69-1.071-.32-.32-.635-.52-1.07-.69-.326-.127-.815-.278-1.715-.32-1.008-.047-1.333-.057-3.725-.057z" clipRule="evenodd" />
+                                        <path fillRule="evenodd" d="M12.315 6.75a5.25 5.25 0 100 10.5 5.25 5.25 0 000-10.5zm0 8.653a3.403 3.403 0 110-6.806 3.403 3.403 0 010 6.806zm4.99-8.863a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
+                                    </svg>
+                                </a>
+                                <a href="#" className="text-white hover:text-amber-400 transition-colors">
+                                    <span className="sr-only">Twitter</span>
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                                    </svg>
+                                </a>
+                            </div>
+                            <p className="text-slate-400 text-sm">© {new Date().getFullYear()} Heritage Recipes. All rights reserved.</p>
                         </div>
                     </div>
                 </div>
@@ -1360,5 +1246,3 @@ const HeritageRecipes: React.FC = () => {
 };
 
 export default HeritageRecipes;
-
-
